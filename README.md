@@ -1,8 +1,8 @@
-Sistema de Calificaciones
+# Proyecto Sistema de Calificaciones evaluación modulo 6
 
 Este proyecto es una API RESTful para la gestión de alumnos y materias, con soporte de autenticación mediante JWT.
 
-Descripción
+## Descripción
 
 La API permite realizar las siguientes acciones:
 
@@ -12,9 +12,9 @@ Crear, leer, actualizar y eliminar materias asociadas a alumnos.
 
 Autenticación y autorización con JWT para proteger los endpoints.
 
-Configuración
+## Configuración
 
-Requisitos
+### Requisitos
 
 Java 21
 
@@ -22,7 +22,7 @@ PostgreSQL
 
 Maven
 
-Configuración de la Base de Datos
+## Configuración de la Base de Datos
 
 Asegúrate de tener una base de datos PostgreSQL configurada con los siguientes parámetros:
 
@@ -35,24 +35,21 @@ Contraseña: Nym3r1t0s.1108
 Si deseas modificar estos valores, actualiza el archivo application.properties ubicado en src/main/resources con tus credenciales:
 
 spring.datasource.url=jdbc:postgresql://localhost:5432/calificaciones_db
-spring.datasource.username=postgres
-spring.datasource.password=Nym3r1t0s.1108
-spring.datasource.driver-class-name=org.postgresql.Driver
 
-# Configuración de JPA
+## Configuración de JPA
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 
-# Configuración opcional de logs SQL
+## Configuración opcional de logs SQL
 logging.level.org.hibernate.SQL=DEBUG
 logging.level.org.hibernate.type.descriptor.sql=TRACE
 
-# Configuración de JWT
+## Configuración de JWT
 jwt.secret=clave_secreta_para_token
 jwt.expiration=3600000
 
-Creación de la Base de Datos
+## Creación de la Base de Datos
 CREATE TABLE alumno (
     id SERIAL PRIMARY KEY,
     rut VARCHAR(15) NOT NULL UNIQUE,
@@ -66,7 +63,7 @@ CREATE TABLE materia (
     alumno_id BIGINT NOT NULL REFERENCES alumno(id) ON DELETE CASCADE
 );
 
-Uso de la API
+## Uso de la API
 
 Endpoints Disponibles
 
@@ -94,7 +91,7 @@ DELETE /api/materias/{id} - Eliminar una materia.
 
 GET /api/materias/alumno/{alumnoId} - Obtener materias asociadas a un alumno específico.
 
-Autenticación JWT
+### Autenticación JWT
 
 POST /api/auth/signup - Registrar un nuevo usuario. Requiere un payload JSON con los campos:
 
@@ -129,7 +126,7 @@ INSERT INTO materia (nombre, alumno_id) VALUES
 ('Ciencias', 1),
 ('Historia', 2);
 
-Ejecución del Proyecto
+## Ejecución del Proyecto
 
 Clona este repositorio.
 
