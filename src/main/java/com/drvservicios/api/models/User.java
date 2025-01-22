@@ -3,9 +3,12 @@ package com.drvservicios.api.models;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
-public class User implements Serializable {
+@Table(name = "users") // Asegúrate de que esta tabla existe en tu base de datos
+public class User implements UserDetails, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -13,13 +16,23 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-    private String username;
-    private String email;
+    @Column(nullable = false)
+    private String name; // Nombre del usuario
+
+    @Column(unique = true, nullable = false)
+    private String username; // Nombre de usuario único
+
+    @Column(unique = true, nullable = false)
+    private String email; // Email único
+
+    @Column(nullable = false)
+    private String password; // Contraseña codificada
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    private List<Role> roles;
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "roles")
+    private List<Role> roles; // Lista de roles asociados al usuario
 
     // Getters y Setters
     public Long getId() {
@@ -54,11 +67,45 @@ public class User implements Serializable {
         this.email = email;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public List<Role> getRoles() {
         return roles;
     }
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    // Métodos de UserDetails para Spring Security
+    @Override
+    public List<? extends GrantedAuthority> getAuthorities() {
+        return roles;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // Personaliza según tu lógica
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Personaliza según tu lógica
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Personaliza según tu lógica
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // Personaliza según tu lógica
     }
 }

@@ -2,10 +2,8 @@ package com.drvservicios.api.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.NoArgsConstructor;
 
 @Entity
-@NoArgsConstructor
 public class Materia {
 
     @Id

@@ -2,11 +2,9 @@ package com.drvservicios.api.models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.NoArgsConstructor;
 import java.util.Set;
 
 @Entity
-@NoArgsConstructor
 public class Alumno {
 
     @Id

@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AlumnoService {
@@ -20,24 +19,43 @@ public class AlumnoService {
     private AlumnoRepository alumnoRepository;
 
     public List<Alumno> findAll() {
-        logger.info("Obteniendo todos los alumnos");
-        return alumnoRepository.findAll();
+        try {
+            logger.info("Obteniendo todos los alumnos");
+            return alumnoRepository.findAll();
+        } catch (Exception e) {
+            logger.error("Error al obtener todos los alumnos", e);
+            throw e; // Relanzar la excepción para que se maneje a nivel superior
+        }
     }
 
     public Alumno save(Alumno alumno) {
-        logger.info("Guardando el alumno: {}", alumno.getNombre());
-        return alumnoRepository.save(alumno);
+        try {
+            logger.info("Guardando el alumno: {}", alumno.getNombre());
+            return alumnoRepository.save(alumno);
+        } catch (Exception e) {
+            logger.error("Error al guardar el alumno: {}", alumno.getNombre(), e);
+            throw e;
+        }
     }
 
     public Alumno findById(Long id) {
-        logger.info("Buscando alumno por ID: {}", id);
-        Optional<Alumno> alumno = alumnoRepository.findById(id);
-        return alumno.orElse(null);
+        try {
+            logger.info("Buscando alumno por ID: {}", id);
+            return alumnoRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Alumno no encontrado con ID: " + id));
+        } catch (Exception e) {
+            logger.error("Error al buscar el alumno por ID: {}", id, e);
+            throw e;
+        }
     }
 
     public void delete(Long id) {
-        logger.info("Eliminando alumno por ID: {}", id);
-        alumnoRepository.deleteById(id);
+        try {
+            logger.info("Eliminando alumno por ID: {}", id);
+            alumnoRepository.deleteById(id);
+        } catch (Exception e) {
+            logger.error("Error al eliminar el alumno por ID: {}", id, e);
+            throw e;
+        }
     }
-
 }
