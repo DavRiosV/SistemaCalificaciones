@@ -1,7 +1,7 @@
 package com.drvservicios.api.controllers;
 
 import com.drvservicios.api.services.UserService;
-import com.drvservicios.api.utils.JwtUtils;
+import com.drvservicios.api.security.JwtTokenProvider;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,15 +26,18 @@ public class UserControllerTest {
     private UserService userService;
 
     @MockBean
-    private JwtUtils jwtUtils;
+    private JwtTokenProvider jwtTokenProvider;
 
     @Test
     void testGetRolesWithValidToken() throws Exception {
         Mockito.when(userService.getUserRoles(3))
                 .thenReturn(List.of("ROLE_ADMIN"));
 
-        Mockito.when(jwtUtils.validateJwtToken(Mockito.anyString()))
+        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString()))
                 .thenReturn(true);
+
+        Mockito.when(jwtTokenProvider.getUsername(Mockito.anyString()))
+                .thenReturn("testUser");
 
         mockMvc.perform(get("/api/users/3/roles")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer valid-token"))
@@ -44,7 +47,7 @@ public class UserControllerTest {
 
     @Test
     void testGetRolesWithInvalidToken() throws Exception {
-        Mockito.when(jwtUtils.validateJwtToken(Mockito.anyString()))
+        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString()))
                 .thenReturn(false);
 
         mockMvc.perform(get("/api/users/3/roles")

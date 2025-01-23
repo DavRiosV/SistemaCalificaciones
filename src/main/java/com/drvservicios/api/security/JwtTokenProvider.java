@@ -7,11 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
@@ -23,7 +19,7 @@ public class JwtTokenProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret:}")
     private String secret;
 
     @Value("${jwt.expiration}")
@@ -33,49 +29,37 @@ public class JwtTokenProvider {
 
     @PostConstruct
     protected void init() {
-        logger.info("Inicializando JwtTokenProvider");
-        if (secret.length() < 32) {
-            logger.error("La clave secreta es demasiado corta. Debe tener al menos 32 caracteres.");
-            throw new IllegalArgumentException("La clave secreta debe tener al menos 256 bits (32 caracteres).");
+        if (secret == null || secret.length() < 32) {
+            logger.warn("La clave secreta es demasiado corta o no está configurada. Generando una clave segura.");
+            secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        } else {
+            secretKey = Keys.hmacShaKeyFor(secret.getBytes());
         }
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
-        logger.info("Clave secreta inicializada correctamente");
+        logger.info("Clave secreta inicializada correctamente.");
     }
 
     public String createToken(String username, List<String> roles) {
-        logger.info("Creando token JWT para el usuario: {}", username);
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("roles", roles);
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + expiration);
 
-        String token = Jwts.builder()
+        return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
-
-        logger.info("Token JWT creado exitosamente para el usuario: {}", username);
-        return token;
     }
 
     public String getUsername(String token) {
-        logger.info("Extrayendo el nombre de usuario del token");
-        try {
-            String username = Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
-            logger.info("Nombre de usuario extraído exitosamente: {}", username);
-            return username;
-        } catch (Exception e) {
-            logger.error("Error al extraer el nombre de usuario del token: {}", e.getMessage());
-            throw new RuntimeException("Token inválido");
-        }
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
     public boolean validateToken(String token) {
@@ -83,12 +67,15 @@ public class JwtTokenProvider {
             Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
-                .parseClaimsJws(token);  // Intenta analizar el token
+                .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
-            return false;  // Si hay un error, el token no es válido
+            logger.error("Error al validar el token: {}", e.getMessage());
+            return false;
         }
     }
 
-
+    public long getExpiration() {
+        return expiration;
+    }
 }

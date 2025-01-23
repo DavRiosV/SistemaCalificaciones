@@ -1,6 +1,5 @@
 package com.drvservicios.api.security;
 
-import com.drvservicios.api.utils.JwtUtils;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;
@@ -8,15 +7,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 public class JwtTokenFilterConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
-    private final JwtUtils jwtUtils;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public JwtTokenFilterConfigurer(JwtUtils jwtUtils) {
-        this.jwtUtils = jwtUtils;
+    public JwtTokenFilterConfigurer(JwtTokenProvider jwtTokenProvider) {
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        JwtTokenValidator jwtTokenValidator = new JwtTokenValidator(jwtUtils);
+        JwtTokenValidator jwtTokenValidator = new JwtTokenValidator(jwtTokenProvider);
         http.addFilterBefore(jwtTokenValidator, UsernamePasswordAuthenticationFilter.class);
     }
 }

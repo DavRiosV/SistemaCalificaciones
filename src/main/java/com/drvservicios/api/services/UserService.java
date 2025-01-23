@@ -6,7 +6,6 @@ import com.drvservicios.api.reposotories.UserRepository;
 import com.drvservicios.api.security.JwtTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +17,16 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    // Constructor explícito
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
     public User signup(User user) {
         logger.info("Intentando registrar un nuevo usuario: {}", user.getUsername());
@@ -67,7 +68,6 @@ public class UserService {
         return user.getRoles();
     }
 
-    // Método para devolver roles en formato de cadena
     public List<String> getUserRoles(int userId) {
         logger.info("Obteniendo roles en formato de cadena para el usuario con ID: {}", userId);
         User user = userRepository.findById((long) userId)
@@ -75,5 +75,17 @@ public class UserService {
         return user.getRoles().stream()
                 .map(Role::name)
                 .collect(Collectors.toList());
+    }
+
+    public User registerUser(User user) {
+        logger.info("Registrando un nuevo usuario: {}", user.getUsername());
+        if (userRepository.existsByUsername(user.getUsername())) {
+            logger.error("El usuario {} ya está registrado.", user.getUsername());
+            throw new RuntimeException("El usuario ya existe.");
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword())); // Encripta la contraseña
+        User savedUser = userRepository.save(user);
+        logger.info("Usuario registrado exitosamente: {}", savedUser.getUsername());
+        return savedUser;
     }
 }

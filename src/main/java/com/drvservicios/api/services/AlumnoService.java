@@ -24,7 +24,7 @@ public class AlumnoService {
             return alumnoRepository.findAll();
         } catch (Exception e) {
             logger.error("Error al obtener todos los alumnos", e);
-            throw e; // Relanzar la excepción para que se maneje a nivel superior
+            throw e;
         }
     }
 
