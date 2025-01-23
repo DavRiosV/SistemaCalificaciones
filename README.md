@@ -137,3 +137,6 @@ Ejecuta el comando:
 mvn spring-boot:run
 
 Accede a la API en http://localhost:8080.
+
+#" Repositorio hermano que se encarga del front 
+https://github.com/DavRiosV/universidadFrontend.git
