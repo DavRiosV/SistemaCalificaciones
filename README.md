@@ -140,3 +140,5 @@ Accede a la API en http://localhost:8080.
 
 #" Repositorio hermano que se encarga del front 
 https://github.com/DavRiosV/universidadFrontend.git
+
+actualmente para loggear la aplicación hay que utilizar el usuario user y la contraseña segura que entrega springboot. (se esta trabajando para loggear con la información de la base de datos)
