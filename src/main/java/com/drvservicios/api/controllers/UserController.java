@@ -12,6 +12,7 @@ import com.drvservicios.api.models.User;
 import jakarta.servlet.http.HttpServletResponse;
 import com.drvservicios.api.security.JwtTokenProvider;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,23 +46,21 @@ public class UserController {
             // Generar el token JWT
             String token = userService.signin(loginRequest.getUsername(), loginRequest.getPassword());
 
-            // Configurar la cookie del token
+            // Configurar la cookie del token (opcional)
             Cookie cookie = new Cookie("JWT_TOKEN", token);
-            cookie.setHttpOnly(true); // Solo accesible por HTTP
-            cookie.setSecure(true); // Solo HTTPS en producción
+            cookie.setHttpOnly(true);
+            cookie.setSecure(true); // Cambiar según tu entorno (true para producción)
             cookie.setPath("/");
             cookie.setMaxAge((int) (jwtTokenProvider.getExpiration() / 1000));
-
-            // Agregar la cookie a la respuesta
             response.addCookie(cookie);
 
-            return ResponseEntity.ok("Inicio de sesión exitoso");
+            // Devolver el token como parte de la respuesta JSON
+            return ResponseEntity.ok(Collections.singletonMap("token", token));
         } catch (Exception e) {
             logger.error("Error en inicio de sesión: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
         }
     }
-
     // Ruta protegida para verificar el token y permitir el acceso a recursos
     @GetMapping("/home")
     public ResponseEntity<?> home(@CookieValue(name = "JWT_TOKEN", required = false) String token) {

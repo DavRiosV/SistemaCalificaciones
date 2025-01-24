@@ -88,4 +88,22 @@ public class UserService {
         logger.info("Usuario registrado exitosamente: {}", savedUser.getUsername());
         return savedUser;
     }
+    
+    public void testPasswordMatch(String username, String rawPassword) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        boolean matches = passwordEncoder.matches(rawPassword, user.getPassword());
+        System.out.println("¿La contraseña coincide? " + matches);
+    }
+    
+    public void verifyPassword(String username, String rawPassword) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        boolean matches = passwordEncoder.matches(rawPassword, user.getPassword());
+        System.out.println("¿La contraseña coincide? " + matches);
+    }
+
+
 }
